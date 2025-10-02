@@ -45,7 +45,7 @@ const App = () => {
       }
     }
 
-    const websocket = new WebSocket('ws://localhost:3001');
+    const websocket = new WebSocket('wss://chat-app-nzoi.onrender.com');
     
     websocket.onopen = () => {
       console.log('Connected to WebSocket server');
