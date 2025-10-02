@@ -243,7 +243,7 @@ const App = () => {
       });
       
       peerConnection.onicecandidate = (event) => {
-        if (event.candidate) {
+        if (event.candidate && ws && connected) {
           ws.send(JSON.stringify({
             type: 'voice_call_ice_candidate',
             targetUser: targetUser,
@@ -255,11 +255,13 @@ const App = () => {
       const offer = await peerConnection.createOffer();
       await peerConnection.setLocalDescription(offer);
       
-      ws.send(JSON.stringify({
-        type: 'voice_call_offer',
-        targetUser: targetUser,
-        offer: offer
-      }));
+      if (ws && connected) {
+        ws.send(JSON.stringify({
+          type: 'voice_call_offer',
+          targetUser: targetUser,
+          offer: offer
+        }));
+      }
       
       setVoiceCall({ active: true, caller: currentUser, receiver: targetUser, incoming: false });
     } catch (error) {
@@ -286,7 +288,7 @@ const App = () => {
         });
         
         peerConnection.onicecandidate = (event) => {
-          if (event.candidate) {
+          if (event.candidate && ws && connected) {
             ws.send(JSON.stringify({
               type: 'voice_call_ice_candidate',
               targetUser: caller,
@@ -299,11 +301,13 @@ const App = () => {
         const answer = await peerConnection.createAnswer();
         await peerConnection.setLocalDescription(answer);
         
-        ws.send(JSON.stringify({
-          type: 'voice_call_answer',
-          targetUser: caller,
-          answer: answer
-        }));
+        if (ws && connected) {
+          ws.send(JSON.stringify({
+            type: 'voice_call_answer',
+            targetUser: caller,
+            answer: answer
+          }));
+        }
         
         setVoiceCall({ active: true, caller: caller, receiver: currentUser, incoming: false });
       } catch (error) {
@@ -332,7 +336,7 @@ const App = () => {
   };
 
   const endVoiceCall = () => {
-    if (voiceCall.active) {
+    if (voiceCall.active && ws && connected) {
       ws.send(JSON.stringify({
         type: 'voice_call_end',
         targetUser: voiceCall.caller === currentUser ? voiceCall.receiver : voiceCall.caller
